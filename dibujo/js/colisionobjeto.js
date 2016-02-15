@@ -62,7 +62,6 @@ var ColisionObjeto=function(tipo_elemento,width,height,nom){
 		base_image=new Image();
 		base_image.src=ruta;	
 		base_image.onload=function(){
-			console.log("cargando "+ruta);
 			context.drawImage(base_image,0,0);
 			textura.needsUpdate=true;
 		}

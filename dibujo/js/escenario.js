@@ -54,11 +54,9 @@ module.exports=function(){
 		}
 
 		var anadir=function(objeto){
-			console.log("anadiendo "+objeto.getNombre());
 			objetos.push(objeto.obtenerScreen());
 			objetos_en_escena[objeto.obtenerScreen().id]=objeto;
 			scene.add(objeto.obtenerScreen());
-			//console.log(objetos_textura.length+" llevo tantos objetos");
 		}
 
 		var obtenerBytesVideo=function(){
@@ -76,12 +74,7 @@ module.exports=function(){
 			canvas_recipe_context.drawImage(video.video,0,0,video.video.width,video.video.height)
 		}
 
-		var verObjetos=function(){
-			for(var i=0;i<objetos.length;i++){
-				console.log("los objetos son "+objetos[i].id+" "+objetos[i].position.x+" "+objetos[i].position.y);
-			}
-		}
-
+		
 		var rendering=function(){
 			videoTexture.needsUpdate=true;
 			for(var i=0;i<objetos.length;i++)
@@ -96,7 +89,6 @@ module.exports=function(){
 			initWebcam:initWebcam,
 			initMarcador:initMarcador,
 			getEscenario:getEscenario,
-			verObjetos:verObjetos,
 			init:init
 		}
 }
