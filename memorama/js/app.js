@@ -277,7 +277,7 @@ var escenario=new Escenario(SCREEN_WIDTH,SCREEN_HEIGHT);
 escenario.initWebcam(1000,700);
 objeto_detector=new ColisionObjeto(document.createElement("canvas"),132,150,"detector");
 objeto_detector.definir(escenario.getEscenario(),"TRANSPARENT",new THREE.Vector3(10,10,0));
-objeto_detector.setBackground('../assets/img/mano_escala.png');
+objeto_detector.setBackground('./assets/img/mano_escala.png');
 objeto_detector.ocultar();
 escenario.initMarcador(objeto_detector);
 var animales=["medusa","ballena","cangrejo","pato"];
@@ -285,8 +285,8 @@ for(var i=1,columna=30,fila_pos=i,fila=20;i<=8;i++,fila_pos=((i==5) ? 1 : fila_p
 	console.log("agregando carta en "+fila_pos+" "+animales[fila_pos-1]);
 	carta=new ColisionObjeto(document.createElement("canvas"),120,120,animales[fila_pos-1]);
 	carta.definir(escenario.getEscenario(),"TRANSPARENT",new THREE.Vector3(fila,columna,0));
-	carta.setBackground("../assets/img/memorama/sin_voltear.jpg");
-	carta.setBackgroundCarta("../assets/img/memorama/escala/cart"+i+"_"+animales[fila_pos-1]+".jpg");
+	carta.setBackground("./assets/img/memorama/sin_voltear.jpg");
+	carta.setBackgroundCarta("./assets/img/memorama/escala/cart"+i+"_"+animales[fila_pos-1]+".jpg");
 	escenario.anadir(carta);
 }
 escenario.verObjetos();
