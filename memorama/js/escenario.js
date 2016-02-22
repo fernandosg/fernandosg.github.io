@@ -8,6 +8,8 @@ module.exports=function(){
 				SCREEN_HEIGHT=screen_height;
 				scene=new THREE.Scene();
 				renderer=new THREE.WebGLRenderer();
+				//renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setClearColor(0xffffff, 1);
 				renderer.setSize(screen_width,screen_height);
 				document.body.appendChild(renderer.domElement);
 				definirCamara();
@@ -49,8 +51,8 @@ module.exports=function(){
 
 			var initMarcador=function(objeto){
 				detector=Detector();
-				detector.init(objeto);
-				scene.add(objeto.obtenerScreen());
+				detector.init(objeto,getEscenario());
+				scene.add(objeto.obtener3d());
 			}
 
 			var anadir=function(objeto){
@@ -85,6 +87,8 @@ module.exports=function(){
 				for(var i=0;i<objetos.length;i++)
 					objetos[i].needsUpdate=true;			
 				detector.obtenerObjeto().actualizar();
+				renderer.autoClear = false;
+    			renderer.clear();	
 				renderer.render( scene, camara );
 			}
 
