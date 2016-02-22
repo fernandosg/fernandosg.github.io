@@ -6,7 +6,7 @@ var escenario=Escenario();
 escenario.init(SCREEN_WIDTH,SCREEN_HEIGHT);
 escenario.initWebcam(1000,700);
 objeto_detector=ColisionObjeto();
-objeto_detector.init(document.createElement("canvas"),50,50,"detector");
+objeto_detector.init(document.createElement("canvas"),132,150,"detector");
 objeto_detector.definir(escenario.getEscenario(),"TRANSPARENT",new THREE.Vector3(10,10,0));
 objeto_detector.setBackground('./assets/img/mano_escala.png');
 objeto_detector.ocultar();

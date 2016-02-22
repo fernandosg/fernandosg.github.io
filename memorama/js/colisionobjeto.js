@@ -1,7 +1,7 @@
 module.exports=function(){
 	var objeto,WIDTH,HEIGHT,context,material,geometria,screen_objeto,textura,tipo_fondo,base_image;
 	var ruta_carta,ruta_carta_sin_voltear,estado=false;
-	var nombre,objeto_3d;
+	var nombre;
 	var init=function(tipo_elemento,width,height,nom){
 		objeto=tipo_elemento;
 		WIDTH=width;
@@ -45,20 +45,12 @@ module.exports=function(){
 		material.transparent=true;
 		geometria=new THREE.PlaneGeometry(WIDTH,HEIGHT);
 		screen_objeto=new THREE.Mesh(geometria,material);
-		if(nombre!="detector"){
-			screen_objeto.position=getPosicionReal(escenario,posicion);		
-			textura.needsUpdate=true;
-		}else{
-			objeto_3d=new THREE.Object3D();
-			objeto_3d.add(screen_objeto);
-		}
+		screen_objeto.position=getPosicionReal(escenario,posicion);
+		textura.needsUpdate=true;
 	}
 
 	var obtenerTextura=function(){
 		return textura;
-	}
-	var obtener3d=function(){
-		return objeto_3d;
 	}
 
 	var obtenerScreen=function(){
@@ -92,10 +84,7 @@ module.exports=function(){
 	}
 
 	var actualizar=function(){
-		if(nombre=="detector")
-			objeto_3d.children[0].material.map.needsUpdate=true;
-		else
-			textura.needsUpdate=true;
+		textura.needsUpdate=true;
 	}
 
 	var ocultar=function(){
@@ -105,7 +94,6 @@ module.exports=function(){
 		init:init,
 		definir:definir,
 		obtenerScreen:obtenerScreen,
-		obtener3d:obtener3d,
 		obtenerTextura:obtenerTextura,
 		getPosicionReal:getPosicionReal,
 		getNombre:getNombre,
