@@ -11,7 +11,13 @@ objeto_detector.init(document.createElement("canvas"),132,150,"detector");
 objeto_detector.definir(escenario.getEscenario(),"TRANSPARENT",new THREE.Vector3(10,10,0));
 objeto_detector.setBackground('./assets/img/mano_escala.png');
 objeto_detector.ocultar();
+extra=ColisionObjeto();
+extra.init(document.createElement("canvas"),132,150,"mano");
+extra.definir3d(escenario.getEscenario(),"TRANSPARENT",new THREE.Vector3(300,10,0));
+extra.setBackground('./assets/img/mano_escala.png');
+escenario.anadirPrueba(extra);
 escenario.initMarcador(objeto_detector);
+/*
 var animales=["medusa","ballena","cangrejo","pato"];
 for(var i=1,columna=30,fila_pos=i,fila=20;i<=8;i++,fila_pos=((i==5) ? 1 : fila_pos+1),fila=(fila_pos==1 ? 20 : (fila+120+20)),columna=((i>4) ? 30+120+30 : 30)){		
 	carta=ColisionObjeto();
@@ -20,13 +26,16 @@ for(var i=1,columna=30,fila_pos=i,fila=20;i<=8;i++,fila_pos=((i==5) ? 1 : fila_p
 	carta.setBackground("./assets/img/memorama/sin_voltear.jpg");
 	carta.setBackgroundCarta("./assets/img/memorama/escala/cart"+i+"_"+animales[fila_pos-1]+".jpg");
 	escenario.anadir(carta);
-}
-escenario.verObjetos();
+}*/
+
+
+//objeto_detector.actualizar3d();
+//escenario.verObjetos();
 escenario.render();
 },{"./colisionobjeto":2,"./escenario":4}],2:[function(require,module,exports){
 module.exports=function(){
 	var objeto,WIDTH,HEIGHT,context,material,geometria,screen_objeto,textura,tipo_fondo,base_image;
-	var ruta_carta,ruta_carta_sin_voltear,estado=false;
+	var ruta_carta,ruta_carta_sin_voltear,estado=false,objeto3d;
 	var nombre;
 	var init=function(tipo_elemento,width,height,nom){
 		objeto=tipo_elemento;
@@ -41,7 +50,7 @@ module.exports=function(){
 	var getPosicionReal=function(escenario,posicion){
 			return new THREE.Vector3(posicion.x-(escenario.width/2),
 				((-1*posicion.y)+(escenario.height/2)),posicion.z)
-	}
+		}
 
 	var voltear=function(){
 		base_image.src=((!estado) ? ruta_carta : ruta_carta_sin_voltear);
@@ -75,12 +84,43 @@ module.exports=function(){
 		textura.needsUpdate=true;
 	}
 
+	var definir3d=function(escenario,color,posicion){
+		tipo_fondo=color;
+		if(color!="TRANSPARENT"){
+			context.fillStyle=color;
+			context.fillRect(0,0,WIDTH,HEIGHT);
+		}
+		textura=new THREE.Texture(objeto);
+		material=new THREE.MeshBasicMaterial({map:textura,side:THREE.DoubleSide});
+		material.transparent=true;
+		geometria=new THREE.PlaneGeometry(WIDTH,HEIGHT);
+		screen_objeto=new THREE.Mesh(geometria,material);
+		objeto3d=new THREE.Object3D();
+		objeto3d.position=posicion;
+		objeto3d.add(screen_objeto);
+		objeto3d.children[0].material.map.needsUpdate=true;
+		//screen_objeto.position=getPosicionReal(escenario,posicion);
+		//textura.needsUpdate=true;
+	}
+
+	var obtener3d=function(){
+		return objeto3d;//screen_objeto;
+	}
+
+	var obtener3d2=function(){
+		return objeto3d;
+	}
+
 	var obtenerTextura=function(){
 		return textura;
 	}
 
 	var obtenerScreen=function(){
 		return screen_objeto;
+	}
+
+	var actualizar3d=function(){
+		objeto3d.children[0].material.map.needsUpdate=true;
 	}
 
 	var setBackground=function(ruta){
@@ -119,8 +159,12 @@ module.exports=function(){
 	return{
 		init:init,
 		definir:definir,
+		definir3d:definir3d,
 		obtenerScreen:obtenerScreen,
 		obtenerTextura:obtenerTextura,
+		obtener3d:obtener3d,
+		obtener3d2:obtener3d2,
+		actualizar3d:actualizar3d,
 		getPosicionReal:getPosicionReal,
 		getNombre:getNombre,
 		setBackground:setBackground,
@@ -135,27 +179,66 @@ module.exports=function(){
 },{}],3:[function(require,module,exports){
 module.exports=function(){
 		var detector,posicion,objeto,vector_posicion;	
-		var detectados=[];
-		var init=function(obj){
+		var detectados=[],modelSize=1.0,posit;		
+		var init=function(obj,escenario){
 			detector=new AR.Detector();
 			objeto=obj;
 			posicion=objeto.obtenerScreen().position;
 			vector_posicion=new THREE.Vector3();
+			posit = new POS.Posit(modelSize, escenario.width);
 		}
+
+
+		function centrarMarcador(objeto,escenario,corners){
+			 var corners, corner, pose, i;
+		        
+		        for (i = 0; i < corners.length; ++ i){
+		          corner = corners[i];
+		          
+		          corner.x = corner.x - (escenario.width / 2);
+		          corner.y = (escenario.height / 2) - corner.y;
+		        }
+		        
+		        pose = posit.pose(corners);
+		        
+		        updateObject(objeto,pose.bestRotation, pose.bestTranslation);     
+		}
+
+
+		 function updateObject(objeto_canvas,rotation, translation){
+		      objeto_canvas.obtener3d().scale.x = modelSize;
+		      objeto_canvas.obtener3d().scale.y = modelSize;
+		      objeto_canvas.obtener3d().scale.z = modelSize;
+		      
+		      objeto_canvas.obtener3d().rotation.x = -Math.asin(-rotation[1][2]);
+		      objeto_canvas.obtener3d().rotation.y = -Math.atan2(rotation[0][2], rotation[2][2]);
+		      objeto_canvas.obtener3d().rotation.z = Math.atan2(rotation[1][0], rotation[1][1]);
+
+		      objeto_canvas.obtenerScreen().position.x = translation[0];
+		      objeto_canvas.obtenerScreen().position.y = translation[1];
+		      objeto_canvas.obtener3d().position.z = translation[2];
+		      console.log("lo encontre "+objeto_canvas.obtenerScreen().position.x+" "+objeto_canvas.obtenerScreen().position.y+" "+objeto_canvas.obtenerScreen().position.z);
+		      objeto_canvas.obtener3d().children[0].material.map.needsUpdate=true;
+		      //objeto_canvas.actualizar();//obtenerScreen().needsUpdate=true;
+		 };
 
 		var getPosicionReal=function(escenario,posicion){
 			return new THREE.Vector3(posicion.x-(escenario.width/2),
 				((-1*posicion.y)+(escenario.height/2)),posicion.z)
 		}
 
-		var detectar=function(escenario,bytes,objetos,objetos_en_escena,camara){
+		var detectar=function(extra,escenario,bytes,objetos,objetos_en_escena,camara){
 			var markers = detector.detect(bytes);   	
-		   	if(markers.length>0){   	
-		   		objeto.obtenerScreen().position=objeto.getPosicionReal(escenario,new THREE.Vector3(markers[0].corners[0].x,markers[0].corners[0].y,15));
+		   	if(markers.length>0){ 
+		   		//extra.obtener3d().position=objeto.getPosicionReal(escenario,new THREE.Vector3(markers[0].corners[0].x,markers[0].corners[0].y,15));
+		   		centrarMarcador(extra,escenario,markers[0].corners);
+				//extra.position=objeto.getPosicionReal(escenario,new THREE.Vector3(markers[0].corners[0].x,markers[0].corners[0].y,15));
+		   		/*objeto.obtenerScreen().position=objeto.getPosicionReal(escenario,new THREE.Vector3(markers[0].corners[0].x,markers[0].corners[0].y,15));
 		   		objeto.obtenerScreen().visible=true;
 		   		objeto.actualizar();	   		
 				vector_posicion.x=objeto.obtenerScreen().position.x;
-				vector_posicion.y=objeto.obtenerScreen().position.y;			
+				vector_posicion.y=objeto.obtenerScreen().position.y;
+				extra.children[0].material.map.needsUpdate=true;
 				var raycaster = new THREE.Raycaster( camara.position, vector_posicion.sub( camara.position ).normalize() );
 				intersects=raycaster.intersectObjects(objetos);
 				if(intersects.length>0){			
@@ -175,7 +258,7 @@ module.exports=function(){
 						detectados.pop();
 					}
 								
-				}
+				}*/
 						 
 		   	}
 		}
@@ -194,7 +277,7 @@ module.exports=function(){
 var Detector=require("./detector");
 module.exports=function(){
 			var camara,scene,renderer,VIEW_ANGLE,ASPECT,SCREEN_WIDTH,SCREEN_HEIGHT,movieScreen,videoTexture,detector;
-			var canvas_recipe,canvas_recipe_context,projector,WIDTH_MOVIE,HEIGHT_MOVIE;
+			var canvas_recipe,canvas_recipe_context,projector,WIDTH_MOVIE,HEIGHT_MOVIE,objetos_3d=[];
 			var objetos=[],objetos_en_escena={};			
 			var init=function(screen_width,screen_height){
 				SCREEN_WIDTH=screen_width;
@@ -211,7 +294,8 @@ module.exports=function(){
 				camara.useTarget = false
 				camara.position.z=1000;	
 				scene.add(camara);
-			}		
+			}
+
 
 			var initWebcam=function(WIDTH_INIT,HEIGHT_INIT){
 				video= new THREEx.WebcamTexture();
@@ -242,7 +326,7 @@ module.exports=function(){
 
 			var initMarcador=function(objeto){
 				detector=Detector();
-				detector.init(objeto);
+				detector.init(objeto,getEscenario());
 				scene.add(objeto.obtenerScreen());
 			}
 
@@ -252,6 +336,14 @@ module.exports=function(){
 				scene.add(objeto.obtenerScreen());
 			}
 
+
+			var anadirPrueba=function(objeto){
+				objetos_3d.push(objeto);				
+				//objetos_3d.push(objeto.obtener3d2());
+				scene.add(objeto.obtener3d());
+				//scene.add(objeto.obtener3d2());
+			}
+
 			var obtenerBytesVideo=function(){
 				return canvas_recipe_context.getImageData(0, 0, video.video.width, video.video.height);
 			}
@@ -259,7 +351,7 @@ module.exports=function(){
 			var render=function(){
 				rendering();
 				dibujarVideo();
-				detector.detectar(getEscenario(),obtenerBytesVideo(),objetos,objetos_en_escena,camara);
+				detector.detectar(objetos_3d[0],getEscenario(),obtenerBytesVideo(),objetos,objetos_en_escena,camara);
 				requestAnimationFrame(render);
 			}
 
@@ -276,14 +368,17 @@ module.exports=function(){
 			var rendering=function(){
 				videoTexture.needsUpdate=true;
 				for(var i=0;i<objetos.length;i++)
-					objetos[i].needsUpdate=true;			
-				detector.obtenerObjeto().actualizar();
+					objetos_3d[1].children[0].material.map.needsUpdate=true;//objetos[i].needsUpdate=true;		
+				//objetos_3d[0].actualizar();//obtenerScreen().needsUpdate=true;//
+				//objetos_3d[1].children[0].material.map.needsUpdate=true;
+				//detector.obtenerObjeto().actualizar();
 				renderer.render( scene, camara );
 			}
 
 			return{
 				init:init,
 				anadir:anadir,
+				anadirPrueba:anadirPrueba,
 				render:render,
 				definirCamara:definirCamara,
 				initWebcam:initWebcam,

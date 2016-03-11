@@ -1,7 +1,7 @@
 var Detector=require("./detector");
 module.exports=function(){
 			var camara,scene,renderer,VIEW_ANGLE,ASPECT,SCREEN_WIDTH,SCREEN_HEIGHT,movieScreen,videoTexture,detector;
-			var canvas_recipe,canvas_recipe_context,projector,WIDTH_MOVIE,HEIGHT_MOVIE;
+			var canvas_recipe,canvas_recipe_context,projector,WIDTH_MOVIE,HEIGHT_MOVIE,objetos_3d=[];
 			var objetos=[],objetos_en_escena={};			
 			var init=function(screen_width,screen_height){
 				SCREEN_WIDTH=screen_width;
@@ -18,7 +18,8 @@ module.exports=function(){
 				camara.useTarget = false
 				camara.position.z=1000;	
 				scene.add(camara);
-			}		
+			}
+
 
 			var initWebcam=function(WIDTH_INIT,HEIGHT_INIT){
 				video= new THREEx.WebcamTexture();
@@ -49,7 +50,7 @@ module.exports=function(){
 
 			var initMarcador=function(objeto){
 				detector=Detector();
-				detector.init(objeto);
+				detector.init(objeto,getEscenario());
 				scene.add(objeto.obtenerScreen());
 			}
 
@@ -59,6 +60,14 @@ module.exports=function(){
 				scene.add(objeto.obtenerScreen());
 			}
 
+
+			var anadirPrueba=function(objeto){
+				objetos_3d.push(objeto);				
+				//objetos_3d.push(objeto.obtener3d2());
+				scene.add(objeto.obtener3d());
+				//scene.add(objeto.obtener3d2());
+			}
+
 			var obtenerBytesVideo=function(){
 				return canvas_recipe_context.getImageData(0, 0, video.video.width, video.video.height);
 			}
@@ -66,7 +75,7 @@ module.exports=function(){
 			var render=function(){
 				rendering();
 				dibujarVideo();
-				detector.detectar(getEscenario(),obtenerBytesVideo(),objetos,objetos_en_escena,camara);
+				detector.detectar(objetos_3d[0],getEscenario(),obtenerBytesVideo(),objetos,objetos_en_escena,camara);
 				requestAnimationFrame(render);
 			}
 
@@ -83,14 +92,17 @@ module.exports=function(){
 			var rendering=function(){
 				videoTexture.needsUpdate=true;
 				for(var i=0;i<objetos.length;i++)
-					objetos[i].needsUpdate=true;			
-				detector.obtenerObjeto().actualizar();
+					objetos_3d[1].children[0].material.map.needsUpdate=true;//objetos[i].needsUpdate=true;		
+				//objetos_3d[0].actualizar();//obtenerScreen().needsUpdate=true;//
+				//objetos_3d[1].children[0].material.map.needsUpdate=true;
+				//detector.obtenerObjeto().actualizar();
 				renderer.render( scene, camara );
 			}
 
 			return{
 				init:init,
 				anadir:anadir,
+				anadirPrueba:anadirPrueba,
 				render:render,
 				definirCamara:definirCamara,
 				initWebcam:initWebcam,
