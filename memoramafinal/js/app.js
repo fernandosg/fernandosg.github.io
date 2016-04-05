@@ -8,10 +8,10 @@ window.requestAnimFrame = (function(){
                 window.setTimeout(callback(cont), 10 / 600);
               };
     })();
-var Detector=require('../src/libs/detector.js');
-var Labels=require("../src/class/labels");
-var DetectorAR=require("../src/class/detector");
-var Elemento=require("../src/class/elemento");
+var Detector=require(window.location.href+'/src/libs/detector.js');
+var Labels=require(window.location.href+"/src/class/labels");
+var DetectorAR=require(window.location.href+"/src/class/detector");
+var Elemento=require(window.location.href+"/src/class/elemento");
 THREE.Matrix4.prototype.setFromArray = function(m) {
         return this.set(
           m[0], m[4], m[8], m[12],
@@ -68,7 +68,7 @@ realidadScene.add(markerRoot);
 
 mano=new Elemento(60,60,new THREE.PlaneGeometry(60,60));
 mano.init();
-mano.definir("../assets/img/mano_escala.png",mano);
+mano.definir(window.location.href+"/assets/img/mano_escala.png",mano);
 mano.get().position.z=-1;
 objeto=mano.get();
 objeto.matrixAutoUpdate = false;
@@ -76,13 +76,13 @@ realidadScene.add(objeto);
 ///*
 indicador_acierto=new Elemento(500,500,new THREE.PlaneGeometry(500,500));
 indicador_acierto.init();
-indicador_acierto.definir("../assets/img/scale/star.png",indicador_acierto);
+indicador_acierto.definir(window.location.href+"/assets/img/scale/star.png",indicador_acierto);
 indicador_acierto.position(new THREE.Vector3(0,0,-2500));
 planoScene.add(indicador_acierto.get());
 
 indicador_error=new Elemento(500,500,new THREE.PlaneGeometry(500,500));
 indicador_error.init();
-indicador_error.definir("../assets/img/scale/error.png",indicador_error);
+indicador_error.definir(window.location.href+"/assets/img/scale/error.png",indicador_error);
 indicador_error.position(new THREE.Vector3(0,0,-2500));
 planoScene.add(indicador_error.get());
 //*/
@@ -100,7 +100,7 @@ for(var i=1,columna=-100,fila_pos=i,fila=-200;i<=8;i++,fila_pos=((i==5) ? 1 : fi
   objetos_mesh.push(elemento);
   objetos.push(elemento);
   planoScene.add(elemento.get());
-	objetos[objetos.length-1].definirCaras("../assets/img/memorama/sin_voltear.jpg","../assets/img/memorama/"+tipo_memorama+"/cart"+i+"_"+cartas[tipo_memorama][fila_pos-1]+".jpg",
+	objetos[objetos.length-1].definirCaras(window.location.href+"/assets/img/memorama/sin_voltear.jpg",window.location.href+"/assets/img/memorama/"+tipo_memorama+"/cart"+i+"_"+cartas[tipo_memorama][fila_pos-1]+".jpg",
     objetos[objetos.length-1]);  
 }
 var material_kathia;
