@@ -14,7 +14,7 @@ THREE.Matrix4.prototype.setFromArray = function(m) {
 var error = new Audio("./assets/sounds/error.wav"); // buffers automatically when created
 var acierto = new Audio("./assets/sounds/acierto.wav"); 
 var videoScene=new THREE.Scene(),realidadScene=new THREE.Scene(),planoScene=new THREE.Scene();
-var WIDTH_CANVAS=640,HEIGHT_CANVAS=480;
+var WIDTH_CANVAS=800,HEIGHT_CANVAS=600;
 var videoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,1000);//THREE.Camera();
 var realidadCamera=new THREE.Camera();
 var planoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,2000);//THREE.Camera();
@@ -57,7 +57,7 @@ realidadScene.add(markerRoot);
 
 
 
-mano=Elemento(120,120,new THREE.PlaneGeometry(120,120));
+mano=Elemento(60,60,new THREE.PlaneGeometry(60,60));
 mano.init();
 mano.definir("./assets/img/mano_escala.png");
 //mano.get().visible=false;
@@ -68,15 +68,15 @@ objeto.add(mano.get());
 //objeto.visible=false;
 realidadScene.add(objeto);
 var animales=["medusa","ballena","cangrejo","pato"];
-objetos=[],objetos_mesh=[];        
+objetos=[],objetos_mesh=[],objetos_3d=[];        
 var animales=["medusa","ballena","cangrejo","pato"];
-for(var i=1,columna=-100,fila_pos=i,fila=-300;i<=8;i++,fila_pos=((i==5) ? 1 : fila_pos+1),fila=(fila_pos==1 ? -300 : (fila+150+33)),columna=((i>4) ? 120 : -100)){			
+for(var i=1,columna=-100,fila_pos=i,fila=-150;i<=8;i++,fila_pos=((i==5) ? 1 : fila_pos+1),fila=(fila_pos==1 ? -150 : (fila+80+33)),columna=((i>4) ? 120 : -100)){			
 	var elemento=Elemento(120,120,new THREE.PlaneGeometry(120,120));
     elemento.init();
 	elemento.etiqueta(animales[fila_pos-1]);
 	elemento.scale(.7,.7);
 	elemento.definirCaras("./assets/img/memorama/sin_voltear.jpg","./assets/img/memorama/escala/cart"+i+"_"+animales[fila_pos-1]+".jpg");
-	elemento.position(new THREE.Vector3(fila,columna,-800),elemento.getCanvas());	
+	elemento.position(new THREE.Vector3(fila,columna,-600),elemento.getCanvas());	
 	elemento.calculoOrigen();
 	objetos_mesh.push(elemento);
 	objetos.push(elemento);
@@ -144,7 +144,7 @@ function verificarColision(){
 	for(var i=0;i<objetos_mesh.length;i++){
         if(objetos_mesh[i]==null)
             continue;
-		if(mano.colisiona(objetos[i].get())){
+		if(objetos[i].colisiona(objeto)){//if(mano.colisiona(objetos[i].get())){
 			console.log("Colisiona con "+objetos[i].getNombre()+" "+i);	
             logicaMemorama(i);
         }	
@@ -172,8 +172,12 @@ function loop(){
 	textura_kathia.needsUpdate=true;
     detectado=detector_ar.markerToObject(objeto);
     if(detectado){
-        console.log("FUE DETECTADO "+detectado);
-        verificarColision();
+        if(objeto.getWorldPosition().z<523)
+        console.log("FUE DETECTADO "+detectado+" pero estas muy lejos");
+        else if(objeto.getWorldPosition().z<=623){
+            console.log("FUE DETECTADO "+detectado+" y estas bien de lejano");
+            verificarColision();
+        }
     }
 	//detectarMarcador();
 	rendering();
@@ -235,8 +239,8 @@ module.exports=function(canvas_element){
             cm[9] = mat.m12;
             cm[10] = -mat.m22;
             cm[11] = 0;
-            cm[12] = mat.m03+30;
-            cm[13] = -mat.m13-20;
+            cm[12] = mat.m03;
+            cm[13] = -mat.m13;
             cm[14] = mat.m23;
             cm[15] = 1;
 
@@ -255,6 +259,9 @@ module.exports=function(canvas_element){
             var markerCount = detector.detectMarkerLite(JSARRaster, 139); 
             if(markerCount>0){            
                 objeto.transformFromArray(obtenerMarcador(markerCount));
+                objeto.scale.x=.5;
+                objeto.scale.y=.5;
+                objeto.matrixWorldNeedsUpdate=true;
                 return true;            
             }
             return false;
@@ -288,11 +295,10 @@ module.exports=function(width_canvas,height_canvas,geometry){
         }
 
         function cambiarUmbral(escala){     
-            umbral_colision=width/4;//+((width/2)*escala);
+            umbral_colision=width/4;
         }
 
         var etiqueta=function(etiqueta){
-            console.log("el nombre "+etiqueta);
             nombre=etiqueta
         }
 
@@ -311,11 +317,6 @@ module.exports=function(width_canvas,height_canvas,geometry){
                  (Math.abs(this.getOrigen().y - b.getOrigen().y) * 2 < (height + b.getDimensiones().height));
         }
 
-        var datosInteresantes=function(){
-            console.log("origenes "+origen.x+" "+origen.y+" "+origen.z+" "+width+" "+height);
-            console.dir(posiciones);
-            console.dir(escalas);
-        }
 
         var calculoAncho=function(height_test){
             vFOV = Math.PI/4;
@@ -409,24 +410,34 @@ module.exports=function(width_canvas,height_canvas,geometry){
                 return true;
             return false;       
          }  
+        function colisiona(mano){
+            box_mano=new THREE.Box3().setFromObject(mano);
+            box_carta=new THREE.Box3().setFromObject(mesh);
+            medidas=box_mano.max.clone();//box_mano.center().clone();
+            medidas.z=(medidas.z*-1);
+            medidas.x=medidas.x-box_mano.size().x*(3/4);
+            medidas.y=medidas.y-box_mano.size().y*(3/4);
+            return box_carta.center().distanceTo(medidas)<=63;
+        }
 
 
+/*
         function colisiona(carta){
+
             var mano=new THREE.Box3().setFromObject(mesh);
             carta=new THREE.Box3().setFromObject(carta);
             return distancia(carta.min,mano.min)<carta.size().x && distancia(carta.max,mano.max)<carta.size().x;  
          }
+*/
         
 
         var voltear=function(){
             imagen_principal=(estado) ? imagen2 : imagen1;
-            //var voltear=function(){
             imagen_carta.src=imagen_principal;
                 imagen_carta.onload=function(){
                 context.drawImage(imagen_carta,0,0);
                 textura_principal.needsUpdate=true;
             }
-        //}
             estado=(estado) ? false : true;
             textura_principal.needsUpdate=true;
         }
@@ -471,7 +482,6 @@ module.exports=function(width_canvas,height_canvas,geometry){
             igualA:igualA,
             esParDe:esParDe,
             distancia:distancia,
-            datosInteresantes:datosInteresantes,
             calculoOrigen:calculoOrigen,
             actualizarPosicionesYescala:actualizarPosicionesYescala,
             calculoAncho:calculoAncho,

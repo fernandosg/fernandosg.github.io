@@ -135,13 +135,25 @@ module.exports=function(width_canvas,height_canvas,geometry){
                 return true;
             return false;       
          }  
+        function colisiona(mano){
+            box_mano=new THREE.Box3().setFromObject(mano);
+            box_carta=new THREE.Box3().setFromObject(mesh);
+            medidas=box_mano.max.clone();//box_mano.center().clone();
+            medidas.z=(medidas.z*-1);
+            medidas.x=medidas.x-box_mano.size().x*(3/4);
+            medidas.y=medidas.y-box_mano.size().y*(3/4);
+            return box_carta.center().distanceTo(medidas)<=63;
+        }
 
 
+/*
         function colisiona(carta){
+
             var mano=new THREE.Box3().setFromObject(mesh);
             carta=new THREE.Box3().setFromObject(carta);
             return distancia(carta.min,mano.min)<carta.size().x && distancia(carta.max,mano.max)<carta.size().x;  
          }
+*/
         
 
         var voltear=function(){

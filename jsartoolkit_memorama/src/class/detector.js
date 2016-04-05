@@ -48,8 +48,8 @@ module.exports=function(canvas_element){
             cm[9] = mat.m12;
             cm[10] = -mat.m22;
             cm[11] = 0;
-            cm[12] = mat.m03+30;
-            cm[13] = -mat.m13-20;
+            cm[12] = mat.m03;
+            cm[13] = -mat.m13;
             cm[14] = mat.m23;
             cm[15] = 1;
 
@@ -68,6 +68,9 @@ module.exports=function(canvas_element){
             var markerCount = detector.detectMarkerLite(JSARRaster, 139); 
             if(markerCount>0){            
                 objeto.transformFromArray(obtenerMarcador(markerCount));
+                objeto.scale.x=.5;
+                objeto.scale.y=.5;
+                objeto.matrixWorldNeedsUpdate=true;
                 return true;            
             }
             return false;
