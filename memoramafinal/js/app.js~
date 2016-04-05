@@ -8,10 +8,10 @@ window.requestAnimFrame = (function(){
                 window.setTimeout(callback(cont), 10 / 600);
               };
     })();
-var Detector=require('../src/libs/detector.js');
-var Labels=require("../src/class/labels");
-var DetectorAR=require("../src/class/detector");
-var Elemento=require("../src/class/elemento");
+var Detector=require('./src/libs/detector.js');
+var Labels=require("./src/class/labels");
+var DetectorAR=require("./src/class/detector");
+var Elemento=require("./src/class/elemento");
 THREE.Matrix4.prototype.setFromArray = function(m) {
         return this.set(
           m[0], m[4], m[8], m[12],

@@ -9,10 +9,10 @@ window.requestAnimFrame = (function(){
                 window.setTimeout(callback(cont), 10 / 600);
               };
     })();
-var Detector=require(window.location.href+'/src/libs/detector.js');
-var Labels=require(window.location.href+"/src/class/labels");
-var DetectorAR=require(window.location.href+"/src/class/detector");
-var Elemento=require(window.location.href+"/src/class/elemento");
+var Detector=require('../src/libs/detector.js');
+var Labels=require("../src/class/labels");
+var DetectorAR=require("../src/class/detector");
+var Elemento=require("../src/class/elemento");
 THREE.Matrix4.prototype.setFromArray = function(m) {
         return this.set(
           m[0], m[4], m[8], m[12],
@@ -69,7 +69,7 @@ realidadScene.add(markerRoot);
 
 mano=new Elemento(60,60,new THREE.PlaneGeometry(60,60));
 mano.init();
-mano.definir(window.location.href+"/assets/img/mano_escala.png",mano);
+mano.definir("./assets/img/mano_escala.png",mano);
 mano.get().position.z=-1;
 objeto=mano.get();
 objeto.matrixAutoUpdate = false;
@@ -77,13 +77,13 @@ realidadScene.add(objeto);
 ///*
 indicador_acierto=new Elemento(500,500,new THREE.PlaneGeometry(500,500));
 indicador_acierto.init();
-indicador_acierto.definir(window.location.href+"/assets/img/scale/star.png",indicador_acierto);
+indicador_acierto.definir("./assets/img/scale/star.png",indicador_acierto);
 indicador_acierto.position(new THREE.Vector3(0,0,-2500));
 planoScene.add(indicador_acierto.get());
 
 indicador_error=new Elemento(500,500,new THREE.PlaneGeometry(500,500));
 indicador_error.init();
-indicador_error.definir(window.location.href+"/assets/img/scale/error.png",indicador_error);
+indicador_error.definir("./assets/img/scale/error.png",indicador_error);
 indicador_error.position(new THREE.Vector3(0,0,-2500));
 planoScene.add(indicador_error.get());
 //*/
@@ -101,7 +101,7 @@ for(var i=1,columna=-100,fila_pos=i,fila=-200;i<=8;i++,fila_pos=((i==5) ? 1 : fi
   objetos_mesh.push(elemento);
   objetos.push(elemento);
   planoScene.add(elemento.get());
-	objetos[objetos.length-1].definirCaras(window.location.href+"/assets/img/memorama/sin_voltear.jpg",window.location.href+"/assets/img/memorama/"+tipo_memorama+"/cart"+i+"_"+cartas[tipo_memorama][fila_pos-1]+".jpg",
+	objetos[objetos.length-1].definirCaras("./assets/img/memorama/sin_voltear.jpg","./assets/img/memorama/"+tipo_memorama+"/cart"+i+"_"+cartas[tipo_memorama][fila_pos-1]+".jpg",
     objetos[objetos.length-1]);  
 }
 var material_kathia;
@@ -215,7 +215,8 @@ function loop(){
 
 initKathia(texto);
 loop();
-},{}],2:[function(require,module,exports){
+
+},{"../src/class/detector":2,"../src/class/elemento":3,"../src/class/labels":4,"../src/libs/detector.js":6}],2:[function(require,module,exports){
 module.exports=function(canvas_element){
         var JSARRaster,JSARParameters,detector,result;
         function init(){
@@ -628,4 +629,83 @@ Animacion.prototype.ocultar=function(objeto,animation){
 module.exports=Animacion;
 
 
+},{}],6:[function(require,module,exports){
+/**
+ * @author alteredq / http://alteredqualia.com/
+ * @author mr.doob / http://mrdoob.com/
+ */
+
+var Detector = {
+
+	canvas: !! window.CanvasRenderingContext2D,
+	webgl: ( function () {
+
+		try {
+
+			var canvas = document.createElement( 'canvas' ); return !! ( window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ) );
+
+		} catch ( e ) {
+
+			return false;
+
+		}
+
+	} )(),
+	workers: !! window.Worker,
+	fileapi: window.File && window.FileReader && window.FileList && window.Blob,
+
+	getWebGLErrorMessage: function () {
+
+		var element = document.createElement( 'div' );
+		element.id = 'webgl-error-message';
+		element.style.fontFamily = 'monospace';
+		element.style.fontSize = '13px';
+		element.style.fontWeight = 'normal';
+		element.style.textAlign = 'center';
+		element.style.background = '#fff';
+		element.style.color = '#000';
+		element.style.padding = '1.5em';
+		element.style.width = '400px';
+		element.style.margin = '5em auto 0';
+
+		if ( ! this.webgl ) {
+
+			element.innerHTML = window.WebGLRenderingContext ? [
+				'Your graphics card does not seem to support <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation" style="color:#000">WebGL</a>.<br />',
+				'Find out how to get it <a href="http://get.webgl.org/" style="color:#000">here</a>.'
+			].join( '\n' ) : [
+				'Your browser does not seem to support <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation" style="color:#000">WebGL</a>.<br/>',
+				'Find out how to get it <a href="http://get.webgl.org/" style="color:#000">here</a>.'
+			].join( '\n' );
+
+		}
+
+		return element;
+
+	},
+
+	addGetWebGLMessage: function ( parameters ) {
+
+		var parent, id, element;
+
+		parameters = parameters || {};
+
+		parent = parameters.parent !== undefined ? parameters.parent : document.body;
+		id = parameters.id !== undefined ? parameters.id : 'oldie';
+
+		element = Detector.getWebGLErrorMessage();
+		element.id = id;
+
+		parent.appendChild( element );
+
+	}
+
+};
+
+// browserify support
+if ( typeof module === 'object' ) {
+
+	module.exports = Detector;
+
+}
 },{}]},{},[1,3,2,4]);
