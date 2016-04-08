@@ -112,7 +112,7 @@ Memorama.prototype.init=function(){
   	objetos[objetos.length-1].definirCaras("./assets/img/memorama/sin_voltear.jpg","./assets/img/memorama/"+this.tipo_memorama+"/cart"+fila_pos+"_"+cartas[this.tipo_memorama][fila_pos-1]+".jpg",
       objetos[objetos.length-1]); 
     capa_elemento=document.createElement("div");
-    capa_elemento.innerHTML+="Elemento "+i+" nombre carta "+cartas[this.tipo_memorama][fila_pos-1]+" pos= x:"+objetos[objetos.length-1].get().position.x+",y:"+objetos[objetos.length-1].get().position.x+",z:"+objetos[objetos.length-1].get().position.z+" <br>";
+    capa_elemento.innerHTML+="Elemento "+i+" nombre carta "+cartas[this.tipo_memorama][fila_pos-1]+" pos= x:"+objetos[objetos.length-1].get().position.x+",y:"+objetos[objetos.length-1].get().position.y+",z:"+objetos[objetos.length-1].get().position.z+" <br>";
     document.getElementById("objetos").appendChild(capa_elemento);
     console.log("VEAMOS "+fila_pos+" "+limite_renglon);    
   }
