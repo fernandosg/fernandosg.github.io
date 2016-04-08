@@ -10,20 +10,22 @@ THREEx.WebcamTexture	= function(WIDTH_CANVAS,HEIGHT_CANVAS){
 	video.loop	= true;
 	// expose video as this.video
 	this.video	= video
+	navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+ 
+	if (navigator.getUserMedia) {       
+	    navigator.getUserMedia({video: true}, handleVideo, videoError);
+	}
+	 
+	function handleVideo(stream) {
+	    video.src = window.URL.createObjectURL(stream);
+	}
+	 
+	function videoError(e) {
+	    // do something
+	    alert("No funciona");
+	}
 
-	if( navigator.webkitGetUserMedia ){
-		navigator.webkitGetUserMedia({video:true}, function(stream){
-			video.src	= URL.createObjectURL(stream);
-		}, function(error){
-			alert('you got no WebRTC webcam');
-		});		
-	}else if(navigator.mozGetUserMedia){
-		navigator.mozGetUserMedia({video:true}, function(stream){
-			video.src	= URL.createObjectURL(stream);
-		}, function(error){
-			alert('you got no WebRTC webcam');
-		});				
-	}else	console.assert(false)
+
 
 
 	// create the texture
