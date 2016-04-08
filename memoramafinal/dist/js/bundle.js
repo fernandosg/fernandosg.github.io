@@ -1,11 +1,13 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+//DEBUG=true;
 Memorama=require("../src/memorama.js");
 memorama=new Memorama();
-memorama.definirTipoMemorama("cocina");
+memorama.config({tipo_memorama:"cocina",cantidad_cartas:6});
 memorama.init();
 },{"../src/memorama.js":7}],2:[function(require,module,exports){
 module.exports=function(canvas_element){
         var JSARRaster,JSARParameters,detector,result;
+        var threshold=139;
         function init(){
             JSARRaster = new NyARRgbRaster_Canvas2D(canvas_element);
             JSARParameters = new FLARParam(canvas_element.width, canvas_element.height);
@@ -71,20 +73,23 @@ module.exports=function(canvas_element){
         }    
 
         var markerToObject=function(objeto){
-            var markerCount = detector.detectMarkerLite(JSARRaster, 139); 
+            var markerCount = detector.detectMarkerLite(JSARRaster, threshold); 
             if(markerCount>0){            
                 objeto.transformFromArray(obtenerMarcador(markerCount));
-                objeto.scale.x=.5;
-                objeto.scale.y=.5;
                 objeto.matrixWorldNeedsUpdate=true;
                 return true;            
             }
             return false;
         }
+
+        var cambiarThreshold=function (threshold_nuevo){
+            threshold=threshold_nuevo;
+        }
         return{
             init:init,
             setCameraMatrix,setCameraMatrix,
-            markerToObject:markerToObject
+            markerToObject:markerToObject,
+            cambiarThreshold:cambiarThreshold
         }
 }
 },{}],3:[function(require,module,exports){
@@ -500,9 +505,11 @@ function Memorama(){
 
 }
 
-Memorama.prototype.definirTipoMemorama=function(tipomemorama){
-  this.tipo_memorama=tipomemorama;
+Memorama.prototype.config=function(configuracion){
+  this.tipo_memorama=configuracion["tipo_memorama"];  
+  this.cantidad_cartas=configuracion["cantidad_cartas"];
 }
+
 
 Memorama.prototype.init=function(){ 
   // IMPORTO LAS CLASES Detector,Labels,DetectorAR,Elemento
@@ -521,7 +528,7 @@ Memorama.prototype.init=function(){
             m[2], m[6], m[10], m[14],
             m[3], m[7], m[11], m[15]
           );
-      }
+  }
 
   var error = new Audio("./assets/sounds/error.wav"); // buffers automatically when created
   var acierto = new Audio("./assets/sounds/acierto.wav"); 
@@ -594,18 +601,23 @@ Memorama.prototype.init=function(){
   // CREACION DE LAS CARTAS COMO ELEMENTOS
   var cartas={animales:["medusa","ballena","cangrejo","pato"],cocina:["pinzas","refractorio","sarten","rallador"]};  
   objetos=[],objetos_mesh=[],objetos_3d=[];        
-  for(var i=1,columna=-100,fila_pos=i,fila=-200;i<=8;i++,fila_pos=((i==5) ? 1 : fila_pos+1),fila=(fila_pos==1 ? -200 : (fila+80+33)),columna=((i>4) ? 120 : -100)){			
+  limite_renglon=Math.floor(this.cantidad_cartas/2)+1;
+  for(var i=1,cont_fila=1,pos_y=-100,fila_pos=i,pos_x=-200;i<=this.cantidad_cartas;i++,pos_y=((fila_pos>=limite_renglon-1) ? pos_y+120+50 : pos_y) ,fila_pos=((fila_pos>=limite_renglon-1) ? 1 : fila_pos+1),pos_x=(fila_pos==1 ? -200 : (pos_x+113))){			
   	var elemento=new Elemento(120,120,new THREE.PlaneGeometry(120,120));
     elemento.init();
   	elemento.etiqueta(cartas[this.tipo_memorama][fila_pos-1]);
   	elemento.scale(.7,.7);  
-    elemento.position(new THREE.Vector3(fila,columna,-600));  
+    elemento.position(new THREE.Vector3(pos_x,pos_y,-600));  
     elemento.calculoOrigen();
     objetos_mesh.push(elemento);
     objetos.push(elemento);
     planoScene.add(elemento.get());
-  	objetos[objetos.length-1].definirCaras("./assets/img/memorama/sin_voltear.jpg","./assets/img/memorama/"+this.tipo_memorama+"/cart"+i+"_"+cartas[this.tipo_memorama][fila_pos-1]+".jpg",
-      objetos[objetos.length-1]);  
+  	objetos[objetos.length-1].definirCaras("./assets/img/memorama/sin_voltear.jpg","./assets/img/memorama/"+this.tipo_memorama+"/cart"+fila_pos+"_"+cartas[this.tipo_memorama][fila_pos-1]+".jpg",
+      objetos[objetos.length-1]); 
+    capa_elemento=document.createElement("div");
+    capa_elemento.innerHTML+="Elemento "+i+" nombre carta "+cartas[this.tipo_memorama][fila_pos-1]+" pos= x:"+objetos[objetos.length-1].get().position.x+",y:"+objetos[objetos.length-1].get().position.x+",z:"+objetos[objetos.length-1].get().position.z+" <br>";
+    document.getElementById("objetos").appendChild(capa_elemento);
+    console.log("VEAMOS "+fila_pos+" "+limite_renglon);    
   }
 
   //CREACION DE KATHIA
@@ -620,14 +632,15 @@ Memorama.prototype.init=function(){
   mesh_kathia.position.set(530,300,-1100);
   planoScene.add(mesh_kathia);
 
+  //CREACION DE LA ETIQUETA DONDE SE ESCRIBE LA RESPUESTA DE KATHIA
   texto=Labels(250,250);
   texto.init();
   texto.definir({
   	color:'#ff0000',
-      alineacion:'center',
-      tiporafia:'200px Arial',
-      x:250/2,
-      y:250/2
+    alineacion:'center',
+    tiporafia:'200px Arial',
+    x:250/2,
+    y:250/2
   });
   label=texto.crear("HELLO WORLD");
   planoScene.add(label);
@@ -638,6 +651,7 @@ Memorama.prototype.init=function(){
   var canvas_element=document.createElement("canvas");
   canvas_element.width=WIDTH_CANVAS;
   canvas_element.height=HEIGHT_CANVAS;
+  canvas_element.id="debugCanvas";
   var canvas_context=canvas_element.getContext("2d");
   var detector_ar=DetectorAR(canvas_element);
   detector_ar.init();
@@ -703,7 +717,16 @@ Memorama.prototype.init=function(){
       UNA PROPUESTA VISUAL DE LA PROFUNDIDAD ACTUAL  
   */
   function actualizarDistancia(z){
-    document.getElementById("distancia").value=((100*z)/1246);
+    document.getElementById("distancia").value=((100*z)/1246);  
+  }
+
+  /*
+    FUNCION PARA MOSTRAR POSICION DE MANO
+  */
+  function mostrarPosicionMano(pos){
+    document.getElementById("pos_x_mano").innerHTML=pos.x;
+    document.getElementById("pos_y_mano").innerHTML=pos.y;
+    document.getElementById("pos_z_mano").innerHTML=pos.z;
   }
 
   /*
@@ -735,9 +758,9 @@ Memorama.prototype.init=function(){
   	canvas_element.changed = true;
   	label.material.map.needsUpdate=true;
   	textura_kathia.needsUpdate=true;
-    detectado=detector_ar.markerToObject(objeto);
-    if(detectado){
+    if(detector_ar.markerToObject(objeto)){
       actualizarDistancia(objeto.getWorldPosition().z);
+      mostrarPosicionMano(objeto.getWorldPosition());
       if(objeto.getWorldPosition().z>523 && objeto.getWorldPosition().z<=623)
         verificarColision();        
     }
@@ -747,8 +770,12 @@ Memorama.prototype.init=function(){
   		animate();
   }
 
+  document.getElementById("threshold").addEventListener("change",function(evt){
+    detector_ar.cambiarThreshold(document.getElementById("threshold").value);
+  })
   initKathia(texto);
   loop();
 }
+
 module.exports=Memorama;
 },{"./class/detector":2,"./class/elemento":3,"./class/labels":4,"./libs/detector.js":6}]},{},[1,3,2,4,7]);

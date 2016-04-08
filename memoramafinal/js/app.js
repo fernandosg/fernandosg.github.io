@@ -1,4 +1,5 @@
+//DEBUG=true;
 Memorama=require("../src/memorama.js");
 memorama=new Memorama();
-memorama.definirTipoMemorama("cocina");
+memorama.config({tipo_memorama:"cocina",cantidad_cartas:6});
 memorama.init();

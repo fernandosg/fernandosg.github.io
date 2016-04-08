@@ -1,5 +1,6 @@
 module.exports=function(canvas_element){
         var JSARRaster,JSARParameters,detector,result;
+        var threshold=139;
         function init(){
             JSARRaster = new NyARRgbRaster_Canvas2D(canvas_element);
             JSARParameters = new FLARParam(canvas_element.width, canvas_element.height);
@@ -65,19 +66,22 @@ module.exports=function(canvas_element){
         }    
 
         var markerToObject=function(objeto){
-            var markerCount = detector.detectMarkerLite(JSARRaster, 139); 
+            var markerCount = detector.detectMarkerLite(JSARRaster, threshold); 
             if(markerCount>0){            
                 objeto.transformFromArray(obtenerMarcador(markerCount));
-                objeto.scale.x=.5;
-                objeto.scale.y=.5;
                 objeto.matrixWorldNeedsUpdate=true;
                 return true;            
             }
             return false;
         }
+
+        var cambiarThreshold=function (threshold_nuevo){
+            threshold=threshold_nuevo;
+        }
         return{
             init:init,
             setCameraMatrix,setCameraMatrix,
-            markerToObject:markerToObject
+            markerToObject:markerToObject,
+            cambiarThreshold:cambiarThreshold
         }
 }

@@ -1,6 +1,7 @@
 function ARDetector(video_elem,camera,canvas){
     var JSARRaster,JSARParameters,detector,result;
     var video;
+    var threshold=139;
     THREE.Matrix4.prototype.setFromArray = function(m) {
         return this.set(
           m[0], m[4], m[8], m[12],
@@ -70,8 +71,12 @@ function ARDetector(video_elem,camera,canvas){
         return (video.readyState == video.HAVE_ENOUGH_DATA)        
     }
 
+    var cambiarThreshold=function (threshold_nuevo){
+        threshold=threshold_nuevo;
+    }
+
     var verificarDeteccion=function(){
-        return detector.detectMarkerLite(JSARRaster, 139);      
+        return detector.detectMarkerLite(JSARRaster, threshold);      
     }
 
     var marcadorAObjeto=function(objeto,i){
@@ -81,6 +86,7 @@ function ARDetector(video_elem,camera,canvas){
     init();
     return{
         verificarDeteccion:verificarDeteccion,
-        marcadorAObjeto:marcadorAObjeto
+        marcadorAObjeto:marcadorAObjeto,
+        cambiarThreshold:cambiarThreshold
     }
 }
