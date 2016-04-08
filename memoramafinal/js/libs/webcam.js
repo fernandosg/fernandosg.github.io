@@ -9,7 +9,7 @@ THREEx.WebcamTexture	= function(WIDTH_CANVAS,HEIGHT_CANVAS){
 	video.autoplay	= true;
 	video.loop	= true;
 	// expose video as this.video
-	this.video	= video
+	this.video	= video;
 	navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
  
 	if (navigator.getUserMedia) {       
@@ -23,6 +23,7 @@ THREEx.WebcamTexture	= function(WIDTH_CANVAS,HEIGHT_CANVAS){
 	function videoError(e) {
 	    // do something
 	    alert("No funciona");
+	    console.dir(e);
 	}
 
 
