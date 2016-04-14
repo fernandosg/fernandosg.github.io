@@ -33,8 +33,9 @@ Memorama.prototype.init=function(){
   var WIDTH_CANVAS=600,HEIGHT_CANVAS=480;
   var videoCamera=new THREE.Camera();
   var realidadCamera=new THREE.Camera();
-  var planoCamera=new THREE.PerspectiveCamera(40,WIDTH_CANVAS/HEIGHT_CANVAS,0.1,2000);//THREE.Camera();
-  //webglAvailable();
+  var planoCamera=new THREE.PerspectiveCamera();  
+  planoCamera.near=0.1;
+  planoCamera.far=2000;
   var renderer = new THREE.WebGLRenderer();
   planoCamera.lookAt(planoScene.position);
   renderer.autoClear = false;
@@ -54,19 +55,9 @@ Memorama.prototype.init=function(){
   camara3d.position.z=-1;
   camara3d.add(movieScreen);
   camara3d.children[0].material.map.needsUpdate=true;
+  camara3d.scale.x = -1; //Rotar el objeto de manera horizontal
+  camara3d.children[0].material.side = THREE.DoubleSide;
   videoScene.add(camara3d);	
-  var markerRoot=new THREE.Object3D();
-  markerRoot.matrixAutoUpdate = false;
-  var geometry = new THREE.PlaneGeometry( 100, 100, 100 );
-  var material = new THREE.MeshBasicMaterial({color:0xcccccc
-  });
-  var cube = new THREE.Mesh(
-    geometry,
-    material
-  );
-  cube.position.z=-1;
-  markerRoot.add(cube);
-  realidadScene.add(markerRoot);
 
 
   /* 
@@ -145,11 +136,15 @@ Memorama.prototype.init=function(){
   label.position.set(-1.5,-6.6,-20);
 
   // CREACION DEL CANVAS QUE PERMITE LEER LA INFORMACION DEL CANVAS PARA LA DETECCION DE DetectorAR
-  var canvas_element=document.createElement("canvas");
+  var canvas_element=document.createElement("canvas");  
   canvas_element.width=WIDTH_CANVAS;
   canvas_element.height=HEIGHT_CANVAS;
   canvas_element.id="debugCanvas";
+  document.getElementById("hiddeninfo").appendChild(canvas_element);
   var canvas_context=canvas_element.getContext("2d");
+
+  pos_x_invertido=WIDTH_CANVAS * -1;
+      // flip context horizontally
   var detector_ar=DetectorAR(canvas_element);
   detector_ar.init();
   detector_ar.setCameraMatrix(realidadCamera);
@@ -250,8 +245,8 @@ Memorama.prototype.init=function(){
     for(var i=0;i<objeto.children.length;i++)
       objeto.children[i].material.needsUpdate=true;    
     for(var i=0;i<objetos.length;i++)
-     	objetos[i].actualizar();    
-  	canvas_context.drawImage(video.video,0,0);
+     	objetos[i].actualizar();  
+  	canvas_context.drawImage(video.video,pos_x_invertido,0); 
   	canvas_element.changed = true;
   	label.material.map.needsUpdate=true;
   	textura_kathia.needsUpdate=true;
