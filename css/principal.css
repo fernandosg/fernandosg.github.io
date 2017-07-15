@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'ALSScrip';
-  src: url("../fonts/alsscrp.ttf");
+  src: url("/fonts/alsscrp.ttf");
 }
 
 span, b, h1, h2, h3, h4, h5, p{
@@ -45,6 +45,10 @@ figure.img-principal-article{
   height: 250px;
 }
 
+figure.img-principal-article img{
+  width: 100%;
+}
+
 footer.principal{
   margin: 70px 0 10px 0;
 }
@@ -64,6 +68,10 @@ img.profile_picture{
 
 .container-single-post{
   text-align: center;
+}
+
+.container-about p{
+  text-align: justify;
 }
 
 .copyright-info{
