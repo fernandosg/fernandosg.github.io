@@ -74,6 +74,10 @@ img.profile_picture{
   text-align: justify;
 }
 
+.content-linebreak{  
+  white-space: pre-line;
+}
+
 .copyright-info{
   text-align: right;
 }
